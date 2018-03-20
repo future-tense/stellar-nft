@@ -103,10 +103,10 @@ class Token {
         //  retrieve metadata object
 
         const url = `https://ipfs.io/ipfs/${hash}/`;
-        const result = await axios.get(url);
+        const {data} = await axios.get(url);
 
-        //  verify that metadata.account === this.id
-        return result.data;
+        //  verify that data.id === this.id
+        return data.meta;
     }
 
     /**
