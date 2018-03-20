@@ -1,9 +1,27 @@
 
 import axios from 'axios';
 import StellarSDK from 'stellar-sdk';
+import sign from './sign';
 
-const horizon = new StellarSDK.Server('https://horizon.stellar.org');
-StellarSDK.Network.usePublicNetwork();
+export const networks = {
+    public:  StellarSDK.Networks.PUBLIC,
+    testnet: StellarSDK.Networks.TESTNET
+};
+
+export class NFT {
+
+    constructor({
+        horizon = 'https://horizon.stellar.org',
+        network = networks.public,
+    } = {}) {
+        this.horizon = new StellarSDK.Server(horizon);
+        this.networkId = StellarSDK.hash(network);
+    }
+
+    token(id) {
+        return new Token(id, this);
+    }
+}
 
 class TokenTransactionBuilder {
 
@@ -36,14 +54,17 @@ class TokenTransactionBuilder {
     }
 }
 
-export class Token {
+class Token {
 
     /**
      *
      * @param id
+     * @param config
      */
-    constructor(id) {
+    constructor(id, config) {
         this.id = id;
+        this.horizon = config.horizon;
+        this.networkId = config.networkId;
     }
 
     /**
@@ -59,7 +80,7 @@ export class Token {
      * @returns {Promise<void>}
      */
     async getOwner() {
-        const account = await horizon.accounts().accountId(this.id).call();
+        const account = await this.horizon.accounts().accountId(this.id).call();
         const item = account.signers.filter(item => item.weight === 1)[0];
         return item.key;
     }
@@ -72,7 +93,7 @@ export class Token {
 
         //  retrieve hash for an account using reverse federation
 
-        const account = await horizon.accounts().accountId(this.id).call();
+        const account = await this.horizon.accounts().accountId(this.id).call();
         const federationServer = await StellarSDK.FederationServer.createForDomain(account.homeDomain);
 
         const federationRecord = await federationServer.resolveAccountId(this.id);
@@ -96,12 +117,12 @@ export class Token {
     async destroy(ownerKeys) {
         const source = ownerKeys.publicKey();
 
-        const account = await horizon.loadAccount(source);
+        const account = await this.horizon.loadAccount(source);
         const tx = TokenTransactionBuilder.destroyToken(account, source, this.id);
 
-        tx.sign(ownerKeys);
+        sign(tx, ownerKeys, this.networkId);
 
-        return horizon.submitTransaction(tx);
+        return this.horizon.submitTransaction(tx);
     }
 
     /**
@@ -113,11 +134,11 @@ export class Token {
     async transfer(ownerKeys, dest) {
         const source = ownerKeys.publicKey();
 
-        const account = await horizon.loadAccount(source);
+        const account = await this.horizon.loadAccount(source);
         const tx = TokenTransactionBuilder.transferToken(account, source, dest, this.id);
 
-        tx.sign(ownerKeys);
+        sign(tx, ownerKeys, this.networkId);
 
-        return horizon.submitTransaction(tx);
+        return this.horizon.submitTransaction(tx);
     }
 }
