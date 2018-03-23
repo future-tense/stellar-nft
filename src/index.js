@@ -58,6 +58,17 @@ export class NFT {
     token(id) {
         return new Token(id, this);
     }
+
+    /**
+     *
+     * @param [params.homedomain]
+     * @param [params.owner]
+     * @returns {Promise<void>}
+     */
+    async listTokens(params) {
+        const {data} = await axios.get('https://nft.futuretense.io/api/tokens', {params: params});
+        return data.map(item => this.token(item.accountid));
+    }
 }
 
 class TokenTransactionBuilder {
