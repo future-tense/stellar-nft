@@ -5,13 +5,18 @@
   "main": "src/index.js",
   "dependencies": {
     "axios": "^0.18.0",
-    "stellar-sdk": "^0.7.7"
+    "json-stringify-safe": "^5.0.1",
+    "multihashes": "^0.4.13",
+    "stellar-sdk": "^0.7.7",
+    "toml-j0.4": "^1.1.1"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "babel --presets env -d lib/ src/",
+    "prepublish": "npm run compile"
   },
   "author": "",
   "license": "ISC"
