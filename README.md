@@ -17,3 +17,5 @@ import {NFT, networks} from 'stellar-nft';
     console.log(metadata);
 })();
 ```
+
+Copyright © 2018 Future Tense, LLC
