@@ -1,4 +1,8 @@
 
+
+
+# Example usage
+
 ```javascript
 import {NFT, networks} from 'stellar-nft';
 
@@ -18,4 +22,4 @@ import {NFT, networks} from 'stellar-nft';
 })();
 ```
 
-Copyright © 2018 Future Tense, LLC
+Copyright © 2018-2019 Future Tense, LLC
